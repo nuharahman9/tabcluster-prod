@@ -1,0 +1,47 @@
+.scroll-button { 
+    background: none;
+    border: none; 
+    display: block; 
+    color: pink; 
+}
+
+.scroll-button:hover { 
+    cursor: pointer; 
+    color: black; 
+}
+
+#numWindows { 
+    margin: 10px; 
+}
+
+.btn { 
+    background-color: white;
+}
+
+
+.cluster-btn { 
+    background-color: pink;
+    border-radius: 15px; 
+    font-style: italic;
+    padding: 7px; 
+    border: none; 
+}
+
+.cluster-btn:hover { 
+    cursor: pointer; 
+}
+
+#loading { 
+    width: 70px; 
+    height: 70px;
+}
+
+
+#popup-window { 
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 200px;
+    height: 125px; 
+}

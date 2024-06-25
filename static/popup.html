@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="popup.css">
+  <script src="jquery.js"></script>
+  <script src="popup.js" defer></script> 
+</head>
+<div id="popup-window"> 
+  <button class="scroll-button" id="left-scroll">&#171;</button>
+  <img id="loading" src="./img/sample.gif" style="display: none;"></img> 
+  <div class="slide" style="display: block;">
+    <label for="numWindows">Select number of windows: <i>(or just leave it blank but it might take a while!)</i>
+    </label><br/> 
+    <input type="number" id="numWindows" name="numWindows"></br>
+    <button id="textCapture" class="cluster-btn">cluster</button>
+  </div>
+  <div class="slide" style="display: none;">
+    <button id="clusterDomain" class="cluster-btn">cluster by url</button>
+  </div>
+  <div class="slide" style="display: none;">tab clustering extension @nuharahman9 on github</div>
+  <button class="scroll-button" id="right-scroll">&#187;</button>
+  </div>
+</html>
