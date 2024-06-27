@@ -4,12 +4,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = { 
     entry: {
-        jquery: './src/vendor/jquery.min.js',
         popup: './src/popup.js', 
-        background: './src/background.js'
-        // pdf: './src/pdfjs-dist/build/pdf.mjs', 
-        // pdfWorker: './src/pdfjs-dist/build/pdf.worker.mjs'
-
+        background: './src/background.js', 
+        'pdf.worker': 'pdfjs-dist/build/pdf.worker.mjs'
     }, 
     output: { 
         filename: '[name].js', 
@@ -35,10 +32,16 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [{ from: 'static' }]
         }), 
-        // new webpack.ProvidePlugin({
-        //     $: 'jquery', 
-        //     jQuery: 'jquery'
-        // })
-    ]
+        new webpack.ProvidePlugin({
+            $: path.resolve(__dirname, './src/lib/jquery.min.js'),
+            jQuery: path.resolve(__dirname, './src/lib/jquery.min.js'),
+            pdfjsLib: 'pdfjs-dist/build/pdf'
+            
+        }), 
+    ], 
+
+    resolve: { 
+        extensions: ['.js', '.mjs']
+    }
 
 }

@@ -1,35 +1,52 @@
-// const isFirefox = navigator.userAgent.includes('Firefox');
-// const pdfjsLib = window['./pdfjs-dist/build/pdf'];
-// pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs-dist/pdf.worker.mjs';
-
-// console.log(pdfjsLib)
-
 var slideIdx = 1 
 showDiv(1)
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 document.getElementById('left-scroll').addEventListener('click', () => moveDiv(-1)); 
 document.getElementById('right-scroll').addEventListener('click', () => moveDiv(+1))
 
 
-// async function getPDFContent(tabUrl) { 
-//     console.log(tabUrl)
-//     const pdf = await getDocument({
-//         url: tabUrl, 
-//         cMapUrl: '../node_modules/pdfjs-dist/cmaps/', 
-//         cMapPacked: true
-//     }).promise.then(function (pdf) {
-//         var pages = pdf.numPages
-//         console.log(pdf)
-//     })
-// }
+async function getPDFContent() {
+    var tabs = await chrome.tabs.query({ currentWindow: true }); 
+    const pdfUrl = tabs[0].url; 
+    console.log("pdf url: ", pdfUrl)
+    var pdf = await pdfjsLib.getDocument(pdfUrl);
+    return pdf.promise.then(function (pdf) {
+        var page_ct = pdf.numPages;
+        var promises = [];
+        for (
+            var curr = 1;
+            curr <= page_ct;
+            curr++
+        ) {
+            var page = pdf.getPage(curr);
+            promises.push(
+                page.then(function (page) {
+                    var textContent = page.getTextContent();
+                    return textContent.then(function (text) {
+                        return text.items
+                            .map(function (s) {
+                                return s.str;
+                            })
+                            .join('');
+                    });
+                }),
+            );
+        }
 
-
+        return Promise.all(promises).then(function (texts) {
+            console.log(texts.join('')); 
+            return texts.join('')
+        });
+    });
+}
 
 function moveDiv(n) { 
     showDiv(slideIdx += n)
 }
 
-function getTextContent () { 
+function getText () { 
+    console.log("get text")
     return document.body.innerText; 
 }
 
@@ -63,7 +80,6 @@ function showLoad() {
 async function getNumWindows() { 
     await chrome.tabs.query({ currentWindow: true }).then(tabs => { 
         tabLen = tabs.length 
-        console.log("num windows: ", tabLen)
         $(document).ready(function() {
             $("#numWindows").attr({
                 "min": 1, 
@@ -75,12 +91,12 @@ async function getNumWindows() {
 }
 
 let options = {
-    root: window, 
+    root: document, 
     rootMargin: "0px", 
     threshold: 1.0, 
 }; 
 
-let observer = new IntersectionObserver(getNumWindows, options)
+let observer = new IntersectionObserver(getPDFContent, options)
 
 let target = document.querySelector("#numWindows"); 
 observer.observe(target); 
@@ -92,36 +108,36 @@ window.addEventListener('DOMContentLoaded', function() {
     var domainNm = document.getElementById('clusterDomain'); 
     var tabsToSend = [] 
     txtCapture.addEventListener('click', async () => {
-        await chrome.tabs.query({ currentWindow: true }).then(tabs => { 
+        try { 
+            const tabs = await chrome.tabs.query({ currentWindow: true }); 
             let promises = tabs.map(tab => {
-                console.log(tab.url)
+                const url = tab.url 
                 return chrome.scripting.executeScript({
                     target: { tabId: tab.id },
-                    func: getTextContent,   
+                    func: (url.endsWith('.pdf') ? getPDFContent : getText), 
                     args: [ tab.url ]
                 }).then(text => {
-                    console.log("text len: ", text.length)
+                    console.log("text len: ", text)
                     tabsToSend.push({tab: tab, text: text[0].result })
                 }).catch(e => { 
                     console.error("error: ", e)
                 })
                 ;
             });
+            await Promise.all(promises);
 
-            Promise.all(promises).then(() => {
-                let data = { 
-                    message: 'sendText',
-                    tabs: tabsToSend, 
-                    numWindows: numWindows.value ? numWindows.value : -1  // to do: add functionality for when windows is not input 
-                }
-                console.log("data: ", data)
-               this.chrome.runtime.sendMessage(data); 
-               showLoad(); 
-            }).catch(error => {
-                console.error("err: ", error);
-            });
+            let data = {
+                message: 'sendText',
+                tabs: tabsToSend,
+                numWindows: numWindows.value ? numWindows.value : -1
+            };
 
-        })
+            console.log("Sending data:", data);
+            chrome.runtime.sendMessage(data);
+            showLoad();
+        } catch (error) {
+            console.error("Error querying tabs:", error);
+        }
 
     }); 
 

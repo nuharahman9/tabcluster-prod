@@ -19,7 +19,7 @@
       {
         "matches": ["<all_urls>"], 
         "css": ["popup.css"], 
-        "js": [ "popup.js", "jquery.min.js" ]
+        "js": [ "popup.js", "jquery.js" ]
       }
     ]
   }
