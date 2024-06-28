@@ -5,41 +5,23 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 document.getElementById('left-scroll').addEventListener('click', () => moveDiv(-1)); 
 document.getElementById('right-scroll').addEventListener('click', () => moveDiv(+1))
 
-
-async function getPDFContent() {
-    var tabs = await chrome.tabs.query({ currentWindow: true }); 
-    const pdfUrl = tabs[0].url; 
-    console.log("pdf url: ", pdfUrl)
-    var pdf = await pdfjsLib.getDocument(pdfUrl);
-    return pdf.promise.then(function (pdf) {
-        var page_ct = pdf.numPages;
-        var promises = [];
-        for (
-            var curr = 1;
-            curr <= page_ct;
-            curr++
-        ) {
-            var page = pdf.getPage(curr);
-            promises.push(
-                page.then(function (page) {
-                    var textContent = page.getTextContent();
-                    return textContent.then(function (text) {
-                        return text.items
-                            .map(function (s) {
-                                return s.str;
-                            })
-                            .join('');
-                    });
-                }),
-            );
-        }
-
-        return Promise.all(promises).then(function (texts) {
-            console.log(texts.join('')); 
-            return texts.join('')
-        });
-    });
+async function getPDFContent(pdfUrl) {
+    console.log("pdf content", pdfUrl)
+    await pdfjsLib.getDocument(pdfUrl).promise.then(pdf => { 
+        return Promise.all(Array.from(Array(pdf.numPages)).map(async (a, n) => {
+            const page = await pdf.getPage(n + 1)
+            const content = await page.getTextContent()
+            return content.items.map(s => s.str).join('') + '\n\n' + 
+            content.items.map(s => s.str).join('\n'); 
+        })).then(a => a.join('\n\n')).then(c => { 
+            return c; 
+        }); 
+    }).catch(e => { 
+        console.warn("cannot parse", pdfUrl, e)
+        resolve(e)
+    })
 }
+
 
 function moveDiv(n) { 
     showDiv(slideIdx += n)
@@ -96,7 +78,7 @@ let options = {
     threshold: 1.0, 
 }; 
 
-let observer = new IntersectionObserver(getPDFContent, options)
+let observer = new IntersectionObserver(getNumWindows, options)
 
 let target = document.querySelector("#numWindows"); 
 observer.observe(target); 
@@ -115,9 +97,9 @@ window.addEventListener('DOMContentLoaded', function() {
                 return chrome.scripting.executeScript({
                     target: { tabId: tab.id },
                     func: (url.endsWith('.pdf') ? getPDFContent : getText), 
-                    args: [ tab.url ]
+                    args: [ url ]
                 }).then(text => {
-                    console.log("text len: ", text)
+                    console.log("text: ", text)
                     tabsToSend.push({tab: tab, text: text[0].result })
                 }).catch(e => { 
                     console.error("error: ", e)

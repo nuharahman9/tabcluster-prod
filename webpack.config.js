@@ -1,6 +1,8 @@
 const path = require('path')
 const webpack = require('webpack')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin'); 
+const CopyWebpackPlugin = require('copy-webpack-plugin'); 
+const nodeExternals = require('webpack-node-externals'); 
 
 module.exports = { 
     entry: {
@@ -13,18 +15,13 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     }, 
     module: { 
-        // rules: [
-        //     {
-        //         test: /jquery.+\.js$/,
-        //         use: [{
-        //             loader: 'expose-loader',
-        //             options: 'jQuery'
-        //         },{
-        //             loader: 'expose-loader',
-        //             options: '$'
-        //         }]
-        //     }
-        // ]
+        rules: [
+            {
+              test: /\.js$/,
+              loader: '@open-wc/webpack-import-meta-loader',
+              exclude: /node_modules/,
+            },
+          ],
     }, 
     mode: 'production', 
     watch: true, 
@@ -32,6 +29,7 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [{ from: 'static' }]
         }), 
+        new NodePolyfillPlugin(), 
         new webpack.ProvidePlugin({
             $: path.resolve(__dirname, './src/lib/jquery.min.js'),
             jQuery: path.resolve(__dirname, './src/lib/jquery.min.js'),
@@ -39,9 +37,18 @@ module.exports = {
             
         }), 
     ], 
-
     resolve: { 
-        extensions: ['.js', '.mjs']
+        extensions: ['.js', '.mjs'], 
+        fallback: {
+            "child_process": false, 
+            "worker_threads": false, 
+            "events": require.resolve("events/"),
+            "fs": false,
+            "path": require.resolve("path-browserify"),
+            "process": require.resolve("process/browser"),
+            "stream": require.resolve("stream-browserify"),
+            "util": require.resolve("util/")
+        }
     }
 
 }
