@@ -1,3 +1,5 @@
+const { resolve } = require("path-browserify");
+
 var slideIdx = 1 
 showDiv(1)
 
@@ -6,20 +8,34 @@ document.getElementById('left-scroll').addEventListener('click', () => moveDiv(-
 document.getElementById('right-scroll').addEventListener('click', () => moveDiv(+1))
 
 async function getPDFContent(pdfUrl) {
-    console.log("pdf content", pdfUrl)
-    await pdfjsLib.getDocument(pdfUrl).promise.then(pdf => { 
-        return Promise.all(Array.from(Array(pdf.numPages)).map(async (a, n) => {
-            const page = await pdf.getPage(n + 1)
-            const content = await page.getTextContent()
-            return content.items.map(s => s.str).join('') + '\n\n' + 
-            content.items.map(s => s.str).join('\n'); 
-        })).then(a => a.join('\n\n')).then(c => { 
-            return c; 
-        }); 
-    }).catch(e => { 
-        console.warn("cannot parse", pdfUrl, e)
-        resolve(e)
-    })
+    var pdf = pdfjsLib.getDocument(pdfUrl);
+    return pdf.promise.then(function (pdf) {
+        var totalPageCount = pdf.numPages;
+        var countPromises = [];
+        for (
+            var currentPage = 1;
+            currentPage <= totalPageCount;
+            currentPage++
+        ) {
+            var page = pdf.getPage(currentPage);
+            countPromises.push(
+                page.then(function (page) {
+                    var textContent = page.getTextContent();
+                    return textContent.then(function (text) {
+                        return text.items
+                            .map(function (s) {
+                                return s.str;
+                            })
+                            .join('');
+                    });
+                }),
+            );
+        }
+
+        return Promise.all(countPromises).then(function (texts) {
+            return texts.join('');
+        });
+    });
 }
 
 
@@ -88,18 +104,17 @@ window.addEventListener('DOMContentLoaded', function() {
     var txtCapture = document.getElementById('textCapture')
     var numWindows = document.getElementById('numWindows'); 
     var domainNm = document.getElementById('clusterDomain'); 
-    var tabsToSend = [] 
+    var tabsToSend = []; 
     txtCapture.addEventListener('click', async () => {
         try { 
             const tabs = await chrome.tabs.query({ currentWindow: true }); 
-            let promises = tabs.map(tab => {
+            let promises = await tabs.map(async tab => {
                 const url = tab.url 
                 return chrome.scripting.executeScript({
-                    target: { tabId: tab.id },
+                    target: { tabId: tab.id, allFrames: true },
                     func: (url.endsWith('.pdf') ? getPDFContent : getText), 
                     args: [ url ]
                 }).then(text => {
-                    console.log("text: ", text)
                     tabsToSend.push({tab: tab, text: text[0].result })
                 }).catch(e => { 
                     console.error("error: ", e)
@@ -107,6 +122,16 @@ window.addEventListener('DOMContentLoaded', function() {
                 ;
             });
             await Promise.all(promises);
+            let pdf = async (tabsToSend) => { 
+                for (let i = 0; i < tabsToSend.length; i++) { 
+                    if (tabsToSend[i]['tab'].url.includes('pdf')) { 
+                        await getPDFContent(tabsToSend[i]['tab'].url).then(c => tabsToSend[i]['text'] = c)
+                    }
+                }
+            }; 
+            
+            await pdf(tabsToSend); 
+            console.log(tabsToSend)
 
             let data = {
                 message: 'sendText',

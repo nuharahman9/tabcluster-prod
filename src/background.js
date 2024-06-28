@@ -1,4 +1,49 @@
 // recieves groups for tabs
+pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
+
+
+let tabsToSend = {} 
+
+function getText() { 
+    return document.body.innerText; 
+}
+
+async function getPDFContent(pdfUrl) {
+    var pdf = pdfjsLib.getDocument(pdfUrl);
+    return pdf.promise.then(function (pdf) {
+        var totalPageCount = pdf.numPages;
+        var countPromises = [];
+        for (
+            var currentPage = 1;
+            currentPage <= totalPageCount;
+            currentPage++
+        ) {
+            var page = pdf.getPage(currentPage);
+            countPromises.push(
+                page.then(function (page) {
+                    var textContent = page.getTextContent();
+                    return textContent.then(function (text) {
+                        return text.items
+                            .map(function (s) {
+                                return s.str;
+                            })
+                            .join('');
+                    });
+                }),
+            );
+        }
+
+        return Promise.all(countPromises).then(function (texts) {
+            return texts.join('');
+        });
+    });
+}
+
+
+
+
+
+
 function rearrangeTabs(tabGroups) { 
     console.log(tabGroups)
     for (const topic in tabGroups) { 
@@ -69,19 +114,6 @@ async function sendText(tab, text) {
     
 
     console.log(response)
-}
-
-
-// get window bounds for input option 
-function getTabCount() { 
-    chrome.tabs.query({ currentWindow: true }), tabs => { 
-        let data = { 
-            msg: 'tabCount', 
-            len: tabs.length 
-        }
-        console.log(data)
-        chrome.runtime.sendMessage(data)
-    }
 }
 
 
