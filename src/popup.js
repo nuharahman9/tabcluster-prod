@@ -107,6 +107,7 @@ window.addEventListener('DOMContentLoaded', function() {
     var tabsToSend = []; 
     txtCapture.addEventListener('click', async () => {
         try { 
+            showLoad();
             const tabs = await chrome.tabs.query({ currentWindow: true }); 
             let promises = await tabs.map(async tab => {
                 const url = tab.url 
@@ -141,7 +142,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
             console.log("Sending data:", data);
             chrome.runtime.sendMessage(data);
-            showLoad();
         } catch (error) {
             console.error("Error querying tabs:", error);
         }

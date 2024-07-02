@@ -19,7 +19,7 @@ module.exports = {
             {
               test: /\.js$/,
               loader: '@open-wc/webpack-import-meta-loader',
-              exclude: /node_modules/,
+              exclude: /(node_modules|py|corpus)/,
             },
           ],
     }, 
