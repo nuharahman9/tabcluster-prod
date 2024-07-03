@@ -45,7 +45,8 @@ class websiteTopicModel:
         for filename in os.listdir(path): 
             file_path = path + filename 
             self.file_paths.append(file_path)
-        
+    
+
     def read_txt(self): 
             # read file contents by line 
         print("enter read_txt\n")
@@ -64,8 +65,14 @@ class websiteTopicModel:
         
     
     def create_tfidf_matrix(self): 
-        self.tfidf_matrix = self.vectorizer.fit_transform(self.websites_preprocessed_data)
-        print("vectorizer created\n")
+        if self.tfidf_matrix == None: 
+            self.tfidf_matrix = self.vectorizer.fit_transform(self.websites_preprocessed_data)
+            print("vectorizer created\n")
+        else: 
+            # add to tf-idf matrix if nmf already ran 
+            self.tfidf_matrix = self.vectorizer.transform(self.websites_preprocessed_data)
+            print("vectorizer updated\n")
+        
     
     def generate_nmf_model(self): 
         print("entering generate_nmf_model\n")
@@ -73,7 +80,7 @@ class websiteTopicModel:
             self.approximate_best_n()
         else: 
             self.nmf_model = NMF(n_components=self.n_components, random_state=1,  solver='mu')
-            self.W = self.nmf_model.fit_transform(self.tfidf_matrix)
+            self.W = self.nmf_model.fit_transform(self.tfidf_matrix) 
             self.H = self.nmf_model.components_ 
     
     def convert_strings_to_words(self): 
@@ -82,6 +89,21 @@ class websiteTopicModel:
             words = website.split()
             word_lists.append(words)
         return word_lists 
+    
+    def recluster(self, new_components): 
+        ## reinitialize 
+        self.n_components = new_components
+        self.file_paths = [] 
+        self.websites_preprocessed_data = [] 
+        self.topics = [] 
+        self.topic_doc_map = []
+
+        self.load_corpus_paths('../corpus/') 
+        self.read_txt() 
+        self.create_tfidf_matrix() 
+        self.generate_nmf_model() 
+        return self.map_topics_to_websites()
+
 
 
     def approximate_best_n(self):
@@ -92,8 +114,6 @@ class websiteTopicModel:
         best_num_topics = 0 
         best_coherence_score = float('-inf')
         min = 2
-        x = [2, 3, 4, 5, 6, 7, 8, 9, 10]
-        y = []
         print("approximate_best_n: ", min, max)
         for i in range(min, max): # dont wanna have a window with just one page - open for suggestion on this one ?
             curr_topics = [] 
@@ -104,7 +124,6 @@ class websiteTopicModel:
             cm = CoherenceModel(topics=curr_topics, texts=word_lists, dictionary=dict, corpus=corpus, coherence='u_mass')
             curr_coherence = round(cm.get_coherence(), 5)
             print('(', i, ',', curr_coherence, ')')
-            y.append(curr_coherence)
             if (curr_coherence > best_coherence_score): 
                 best_num_topics = i 
                 best_coherence_score = curr_coherence 
@@ -141,6 +160,7 @@ class websiteTopicModel:
         self.read_txt()
         self.create_tfidf_matrix()
         self.generate_nmf_model()
+
         return self.map_topics_to_websites()
 
     
