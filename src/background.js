@@ -94,7 +94,7 @@ async function cluster(numWindows) {
     })
 
     const json = await response.json()
-    // console.log(json)
+    console.log("JSON RESPONSE: ", json)
     if (json.status === 200) { 
         rearrangeTabs(json.groups)
     }

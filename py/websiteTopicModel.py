@@ -48,7 +48,8 @@ class websiteTopicModel:
     
 
     def read_txt(self): 
-            # read file contents by line 
+        
+        # read file contents by line 
         print("enter read_txt\n")
         for file_path in self.file_paths: 
             file = open(file_path, "r", encoding="utf-8")
@@ -112,10 +113,11 @@ class websiteTopicModel:
         corpus = [dict.doc2bow(text) for text in word_lists]
         max = len(self.file_paths)
         best_num_topics = 0 
+        prev_coherence = 0 
         best_coherence_score = float('-inf')
         min = 2
         print("approximate_best_n: ", min, max)
-        for i in range(min, max): # dont wanna have a window with just one page - open for suggestion on this one ?
+        for i in range(2, max): # dont wanna have a window with just one page - open for suggestion on this one ?
             curr_topics = [] 
             self.nmf_model = NMF(n_components=i, random_state=60, solver='mu', init='nndsvda')
             self.W = self.nmf_model.fit_transform(self.tfidf_matrix)
@@ -124,13 +126,21 @@ class websiteTopicModel:
             cm = CoherenceModel(topics=curr_topics, texts=word_lists, dictionary=dict, corpus=corpus, coherence='u_mass')
             curr_coherence = round(cm.get_coherence(), 5)
             print('(', i, ',', curr_coherence, ')')
-            if (curr_coherence > best_coherence_score): 
+
+            if (i != 2): 
+                diff = abs(prev_coherence - curr_coherence) 
+                if (diff < 0.5): 
+                    best_num_topics = i 
+                    break
+                else: 
+                    prev_coherence = curr_coherence
+            else: 
                 best_num_topics = i 
-                best_coherence_score = curr_coherence 
+                prev_coherence = curr_coherence 
 
 
         print("best number of components: ", best_num_topics) 
-        self.nmf_model = NMF(n_components=best_num_topics, random_state=1, solver='mu', init='nndsvda')
+        self.nmf_model = NMF(n_components=best_num_topics, random_state=60, solver='mu', init='nndsvda')
         self.W = self.nmf_model.fit_transform(self.tfidf_matrix)
         self.H = self.nmf_model.components_  
 
