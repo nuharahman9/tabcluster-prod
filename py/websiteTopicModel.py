@@ -99,11 +99,7 @@ class websiteTopicModel:
         self.topics = [] 
         self.topic_doc_map = []
 
-        self.load_corpus_paths('../corpus/') 
-        self.read_txt() 
-        self.create_tfidf_matrix() 
-        self.generate_nmf_model() 
-        return self.map_topics_to_websites()
+        return self.driver() 
 
 
 
@@ -127,16 +123,7 @@ class websiteTopicModel:
             curr_coherence = round(cm.get_coherence(), 5)
             print('(', i, ',', curr_coherence, ')')
 
-            if (i != 2): 
-                diff = abs(prev_coherence - curr_coherence) 
-                if (diff < 0.5): 
-                    best_num_topics = i 
-                    break
-                else: 
-                    prev_coherence = curr_coherence
-            else: 
-                best_num_topics = i 
-                prev_coherence = curr_coherence 
+
 
 
         print("best number of components: ", best_num_topics) 
@@ -150,7 +137,7 @@ class websiteTopicModel:
         word_topics = [] 
         terms = self.vectorizer.get_feature_names_out()
         for index, topic in enumerate(self.H):
-            topics.append([terms[i] for i in topic.argsort()[-3:]])
+            topics.append([terms[i] for i in topic.argsort()[-10:]])
         for topic in topics: 
             word_topics.append([word for phrase in topic for word in phrase.split()])  
         return word_topics 

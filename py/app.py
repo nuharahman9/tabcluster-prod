@@ -75,6 +75,52 @@ def cluster():
         })
 
 
+@app.route('/upload-v2', methods=['POST'])
+def upload_txt(): 
+    data = request.get_json() 
+    tabs = data.get('tabs')
+    print(len(tabs))
+    global url_id_map
+    try: 
+        for tab in tabs:
+            url = tab['tab']['url'] 
+            text = tab['text']
+            title = tab['tab']['title']
+            id = tab['tab']['id']
+            if url and text:
+                filename = url.replace('http://', '').replace('https://', '').replace('/', '_').replace('www.', '')
+                # truncate file name 
+                filename = filename[:40] if len(filename) > 40 else filename 
+                filename += '.txt'
+                filepath = os.path.join(UPLOAD_FOLDER, filename) # create file under tab id 
+                url_id_map[filepath] = id 
+                with open(filepath, 'a', encoding='utf-8') as file:
+                    file.write(url) 
+                    file.write('\n')
+                    file.write(title)
+                    file.write('\n')
+                    file.write(text)
+            else: 
+                print("something happened with: ", url)
+        return jsonify({ 'status': 200, 'message': "data upload complete"})
+    except: 
+        return jsonify({ 'status': 400, 'message': 'F' })
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @app.route('/upload', methods=['POST']) 
 def upload_text():
     print("upload_text")

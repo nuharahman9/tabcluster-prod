@@ -101,34 +101,35 @@ async function cluster(numWindows) {
 
 }
 
-// sends text content of website to flask 
-async function sendText(tab, text) {
-    console.log("text length: ", text.length)
-    const response = fetch('http://127.0.0.1:5000/upload', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ id: tab.id, url: tab.url, title: tab.title, text: text })
-    })
-    
 
-    console.log(response)
+async function sendTextv2(tabs) { 
+    const response = fetch('http://127.0.0.1:5000/upload-v2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tabs: tabs })
+      }).catch(error => { 
+          console.log("something went wrong.\n"); 
+          console.error(error)
+      }); 
+      
 }
+
+
 
 
 
 // communication with popup script 
 chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
     if (data.message == "sendText") { 
-        const tabs = data.tabs
+        const tabs = data.tabs; 
+        const len = data.length; 
         console.log("tabs: ", tabs); 
         const numWindows = data.numWindows
-        let promises = tabs.map(tab => {
-            return sendText(tab.tab, tab.text)
-        })
+        let promises = sendTextv2(tabs)
 
-        Promise.all(promises).then(() => cluster(numWindows)); 
+        new Promise(promises).then(() => cluster(numWindows)); 
 
     }
 

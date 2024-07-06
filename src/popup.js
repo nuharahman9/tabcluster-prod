@@ -137,6 +137,7 @@ window.addEventListener('DOMContentLoaded', function() {
             let data = {
                 message: 'sendText',
                 tabs: tabsToSend,
+                len: tabsToSend.length, 
                 numWindows: numWindows.value ? numWindows.value : -1
             };
 
