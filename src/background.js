@@ -109,10 +109,12 @@ async function sendTextv2(tabs) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ tabs: tabs })
-      }).catch(error => { 
-          console.log("something went wrong.\n"); 
-          console.error(error)
-      }); 
+      })
+      .catch(error => { 
+          console.error("[sendTextv2] something went wrong: ", error)
+      });
+      
+    return response; 
       
 }
 
@@ -127,9 +129,12 @@ chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
         const len = data.length; 
         console.log("tabs: ", tabs); 
         const numWindows = data.numWindows
-        let promises = sendTextv2(tabs)
-
-        new Promise(promises).then(() => cluster(numWindows)); 
+        const response = await sendTextv2(tabs); 
+        if (response.status === 200) { 
+            cluster(numWindows); 
+        } else { 
+            console.error("[Chrome Runtime Listener] Cluster failed.")
+        }
 
     }
 

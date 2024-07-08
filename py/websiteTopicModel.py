@@ -3,6 +3,7 @@ import string
 import numpy as np 
 import os 
 import matplotlib.pyplot as plt
+from sklearn.model_selection import GridSearchCV 
 from nltk import word_tokenize
 from nltk.corpus import stopwords   
 from nltk.stem import PorterStemmer
@@ -30,7 +31,7 @@ class websiteTopicModel:
 
     def __init__(self, n_components): 
         self.n_components = n_components
-        self.vectorizer = TfidfVectorizer(norm='l2', smooth_idf=True, max_df=0.95, ngram_range=(1, 3), stop_words='english')
+        self.vectorizer = TfidfVectorizer(max_df=0.95, ngram_range=(2, 3), stop_words='english')
         self.file_paths = []
         self.tfidf_matrix = None 
         self.tokens = None 
@@ -109,21 +110,26 @@ class websiteTopicModel:
         corpus = [dict.doc2bow(text) for text in word_lists]
         max = len(self.file_paths)
         best_num_topics = 0 
-        prev_coherence = 0 
-        best_coherence_score = float('-inf')
+        best_coherence = float('inf')
+      #  prev_coherence = 0 
         min = 2
         print("approximate_best_n: ", min, max)
-        for i in range(2, max): # dont wanna have a window with just one page - open for suggestion on this one ?
+        for i in range(1, max): # dont wanna have a window with just one page - open for suggestion on this one ?
             curr_topics = [] 
             self.nmf_model = NMF(n_components=i, random_state=60, solver='mu', init='nndsvda')
             self.W = self.nmf_model.fit_transform(self.tfidf_matrix)
             self.H = self.nmf_model.components_  
             curr_topics = self.get_topics()
+
             cm = CoherenceModel(topics=curr_topics, texts=word_lists, dictionary=dict, corpus=corpus, coherence='u_mass')
             curr_coherence = round(cm.get_coherence(), 5)
-            print('(', i, ',', curr_coherence, ')')
 
+            print('(', i, ',', curr_coherence, '),')
+            if (curr_coherence < best_coherence): 
+                best_num_topics = i 
+                best_coherence = curr_coherence 
 
+        
 
 
         print("best number of components: ", best_num_topics) 
