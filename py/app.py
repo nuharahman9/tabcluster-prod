@@ -61,18 +61,18 @@ def cluster():
                     topics_website_ids_map[topicNum].append(url_id_map[file])
         print(topics_website_ids_map) 
         cleanup()
-    #     response = jsonify({
-    #         'groups': topics_website_ids_map, 
-    #         'status': 200, 
-    #         'message': 'Success'
-    #     })
-    #     print("response: ", response)
-    #     return response 
-    # else: 
-    #     return jsonify({
-    #         'status': 400, 
-    #         'message': 'something went wrong.'
-    #     })
+        response = jsonify({
+            'groups': topics_website_ids_map, 
+            'status': 200, 
+            'message': 'Success'
+        })
+        print("response: ", response)
+        return response 
+    else: 
+        return jsonify({
+            'status': 400, 
+            'message': 'something went wrong.'
+        })
 
 
 @app.route('/upload-v2', methods=['POST'])
@@ -90,7 +90,7 @@ def upload_txt():
             if url and text:
                 filename = url.replace('http://', '').replace('https://', '').replace('/', '_').replace('www.', '')
                 # truncate file name 
-                filename = filename[:40] if len(filename) > 40 else filename 
+                filename = filename[:45] if len(filename) > 45 else filename 
                 filename += '.txt'
                 filepath = os.path.join(UPLOAD_FOLDER, filename) # create file under tab id 
                 print(id, filepath)

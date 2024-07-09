@@ -3,7 +3,6 @@ import string
 import numpy as np 
 import os 
 import matplotlib.pyplot as plt
-from sklearn.model_selection import GridSearchCV 
 from nltk import word_tokenize
 from nltk.corpus import stopwords   
 from nltk.stem import PorterStemmer
@@ -110,7 +109,7 @@ class websiteTopicModel:
         corpus = [dict.doc2bow(text) for text in word_lists]
         max = len(self.file_paths)
         best_num_topics = 0 
-        best_coherence = float('inf')
+        best_coherence = float('-inf')
       #  prev_coherence = 0 
         min = 2
         print("approximate_best_n: ", min, max)
@@ -121,11 +120,11 @@ class websiteTopicModel:
             self.H = self.nmf_model.components_  
             curr_topics = self.get_topics()
 
-            cm = CoherenceModel(topics=curr_topics, texts=word_lists, dictionary=dict, corpus=corpus, coherence='u_mass')
+            cm = CoherenceModel(topics=curr_topics, texts=word_lists, dictionary=dict, corpus=corpus, coherence='c_v')
             curr_coherence = round(cm.get_coherence(), 5)
 
             print('(', i, ',', curr_coherence, '),')
-            if (curr_coherence < best_coherence): 
+            if (curr_coherence > best_coherence): 
                 best_num_topics = i 
                 best_coherence = curr_coherence 
 
