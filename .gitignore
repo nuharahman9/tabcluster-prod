@@ -2,3 +2,4 @@ node_modules
 dist
 py/myenv/
 src/lib/
+.DS_Store

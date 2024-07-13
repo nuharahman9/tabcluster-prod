@@ -8,6 +8,7 @@ module.exports = {
     entry: {
         popup: './src/popup.js', 
         background: './src/background.js', 
+        jquery: './src/lib/jquery.min.js', 
         'pdf.worker': 'pdfjs-dist/build/pdf.worker.mjs'
     }, 
     output: { 

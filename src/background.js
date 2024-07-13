@@ -3,6 +3,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 
 let tabsToSend = {} 
+const colors = ["grey", "blue", "red", "yellow", "green", "pink", "purple", "cyan", "orange"]; 
 
 function getText() { 
     return document.body.innerText; 
@@ -41,21 +42,22 @@ async function getPDFContent(pdfUrl) {
 
 
 
-
-
-
-function rearrangeTabs(tabGroups) { 
-    console.log(tabGroups)
+function rearrangeTabsv2(tabGroups) {
     for (const topic in tabGroups) { 
         let tabIds = tabGroups[topic]
-        if (tabIds.length) {  // needs to have better error handling 
-            chrome.windows.create({ tabId: tabIds[0] }, newWindow => { 
-                tabIds.shift() 
-                chrome.tabs.move(tabIds, { index: 0, windowId: newWindow.id })
-            })
+        console.log(tabIds)
+        if (tabIds.length) { 
+            chrome.tabs.group({ tabIds: tabIds }, groupId => { 
+                
+
+            }) 
         }
     }
-}
+
+ }
+
+
+
 
 // call cluster by url 
 function groupByDomain(tabs) { 
@@ -75,7 +77,7 @@ function groupByDomain(tabs) {
 
     console.log("groupbyDomain: ", domain_tabIds)
 
-    rearrangeTabs(domain_tabIds)
+    rearrangeTabsv2(domain_tabIds)
 }
 
 
@@ -96,7 +98,7 @@ async function cluster(numWindows) {
     const json = await response.json()
     console.log("JSON RESPONSE: ", json)
     if (json.status === 200) { 
-        rearrangeTabs(json.groups)
+        rearrangeTabsv2(json.groups)
     }
 
 }
