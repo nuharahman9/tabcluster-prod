@@ -3,7 +3,6 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 
 let tabsToSend = {} 
-const colors = ["grey", "blue", "red", "yellow", "green", "pink", "purple", "cyan", "orange"]; 
 
 function getText() { 
     return document.body.innerText; 

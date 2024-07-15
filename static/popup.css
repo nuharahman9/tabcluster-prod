@@ -1,8 +1,32 @@
 .scroll-button { 
     background: none;
     border: none; 
-    display: block; 
+    position: absolute;
+    display: inline; 
     color: pink; 
+}
+
+label { 
+    padding-top: 1000px;
+}
+
+#exit { 
+    text-decoration: none;
+    position: absolute;
+    top: 10px; 
+    right: 10px; 
+}
+
+
+#left-scroll { 
+    float: left; 
+    left: 5px; 
+    
+}
+
+#right-scroll { 
+    float: right;
+    right: 5px; 
 }
 
 .scroll-button:hover { 
@@ -30,7 +54,7 @@
 .cluster-btn:hover { 
     cursor: pointer; 
 }
-
+    
 #loading { 
     width: 70px; 
     height: 70px;
@@ -38,10 +62,24 @@
 
 
 #popup-window { 
-    text-align: center;
-    display: flex;
+    display: flex; 
     align-items: center;
-    justify-content: space-around;
-    width: 200px;
-    height: 125px; 
+    text-align: center;
+    /* justify-content: space-around; */
+    background: palegreen;
+    height: 150px; 
+    width: 250px; 
+    border-radius: 7px; 
+    border: 0.001em solid #e5e5e5;
+    font-family: 'helvetica neue';
 }
+
+.button-cover {
+    width:100%;
+    background:#fff;
+    margin-top: 20px;
+    padding: 10px 0 10px 0;
+}
+
+
+

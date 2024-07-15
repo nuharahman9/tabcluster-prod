@@ -3,18 +3,6 @@ showDiv(1)
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
-var leftScroll = document.getElementById('left-scroll'); 
-var rightScroll = document.getElementById('right-scroll'); 
-
-if (leftScroll !== null && rightScroll !== null) { 
-    console.log("we did it joe\n"); 
-    leftScroll.addEventListener('click', moveDiv(-1)); 
-    rightScroll.addEventListener('click', moveDiv(+1)); 
-}
-
-
-
-
 
 async function getPDFContent(pdfUrl) {
     var pdf = pdfjsLib.getDocument(pdfUrl);
@@ -48,9 +36,6 @@ async function getPDFContent(pdfUrl) {
 }
 
 
-function moveDiv(n) { 
-    showDiv(slideIdx += n)
-}
 
 function getText () { 
     return document.body.innerText; 
@@ -70,8 +55,12 @@ function showDiv(n) {
             console.log(x[slideIdx - 1]); 
             x[slideIdx-1].style.display =  "block"; 
         }
+}
 
 
+function moveDiv(n) { 
+    console.log("event: ", n); 
+    showDiv(slideIdx += n)
 }
 
 
@@ -108,17 +97,19 @@ let options = {
     threshold: 1.0, 
 }; 
 
-var target = document.querySelector("#numWindows"); 
-let observer = new IntersectionObserver(getNumWindows, options)
-if (target !== null) { 
-    observer.observe(target); 
-}
-
-
 
 
 
 window.addEventListener('DOMContentLoaded', function() {
+    // add all the events for UI 
+    document.getElementById("left-scroll").addEventListener('click', () => moveDiv(-1)); 
+    document.getElementById("right-scroll").addEventListener('click', () => moveDiv(1)); 
+    var target = document.querySelector("#numWindows"); 
+    let observer = new IntersectionObserver(getNumWindows, options); 
+    observer.observe(target); 
+    
+
+    // functionality for querying tabs 
     var txtCapture = document.getElementById('textCapture'); 
     var numWindows = document.getElementById('numWindows'); 
     var domainNm = document.getElementById('clusterDomain'); 
@@ -161,7 +152,7 @@ window.addEventListener('DOMContentLoaded', function() {
                     message: 'sendText',
                     tabs: tabsToSend,
                     len: tabsToSend.length, 
-                    numWindows: numWindows.value ? numWindows.value : -1
+                    numWindows: numWindows  .value ? numWindows.value : -1
                 };
 
                 console.log("[popup.js] Sending data:", data);
