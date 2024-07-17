@@ -4,27 +4,27 @@
   <link rel="stylesheet" href="popup.css">
   <script src="popup.js" defer></script> 
 </head>
-<div id="popup-window"> 
-  <a href="#" id="exit">x</a>
-  <a class="scroll-button" id="left-scroll">&#171;</a>
-  <img id="loading" src="./img/sample.gif" style="display: none;"></img> 
-  <div class="slide" style="display: block;">
+<div id="tabcluster-popup"> 
+  <a href="#" id="tc-exit">x</a>
+  <a class="tc-scroll-button" id="left-scroll">&#171;</a>
+  <img id="tabcluster-loading" src="./img/sample.gif" style="display: none;"></img> 
+  <div class="tabcluster-slide" style="display: block;">
     <div class="text">
       Select number of windows: <i>(or just leave it blank but it might take a while!)</i>
     </div>
-    <input type="number" id="numWindows" name="numWindows"></br>
+    <input type="number" id="tabcluster-numWindows" name="numWindows"></br>
     <div class="button-cover">
-    <button id="textCapture">cluster</button>
+    <button id="textCapture" class="tc-extension-button">cluster</button>
     </div>
   </div>
-  <div class="slide" style="display: none;">
-    <button id="clusterDomain">cluster by url</button>
+  <div class="tabcluster-slide" style="display: none;">
+    <button id="clusterDomain" class="tc-extension-button">cluster by url</button>
   </div>
-  <div class="slide" style="display: none;">
-    <div class="text"> 
-    tab clustering extension @nuharahman9 on github
+  <div class="tabcluster-slide" style="display: none;">
+    <div class="text" id="tc-title"> 
+        tab clustering extension @nuharahman9 on github
     </div>
   </div>
-  <a class="scroll-button" id="right-scroll">&#187;</a>
+  <a class="tc-scroll-button" id="right-scroll">&#187;</a>
   </div>
 </html>

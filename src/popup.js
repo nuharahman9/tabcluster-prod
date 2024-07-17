@@ -1,7 +1,7 @@
 var slideIdx = 1 
 showDiv(1)
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
+// pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 
 async function getPDFContent(pdfUrl) {
@@ -43,14 +43,13 @@ function getText () {
 
 function showDiv(n) { 
     var i 
-    var x = document.getElementsByClassName("slide")
+    var x = document.getElementsByClassName("tabcluster-slide")
     console.log("x: ", x)
         if (n > x.length) { slideIdx = 1 }
         if (n < 1) { slideIdx = x.length }
         for (i = 0; i < x.length; i++) { 
             x[i].style.display = "none"; 
         }
-        // fix this later - keeps throwing an error !!! 
         if (x[slideIdx - 1]) { 
             console.log(x[slideIdx - 1]); 
             x[slideIdx-1].style.display =  "block"; 
@@ -64,24 +63,31 @@ function moveDiv(n) {
 }
 
 
-function showLoad() { 
-    var buttons = document.getElementsByClassName("scroll-button"); 
-    var x = document.getElementsByClassName("slide"); 
-    var load = document.getElementById("loading"); 
-    for (i = 0; i < x.length; i++) { 
-        x[i].style.display = "none"; 
-    }
-    buttons[0].style.display = "none"; 
-    buttons[1].style.display = "none"; 
 
-    load.style.display = "block"; 
+
+
+// true = show load 
+// false = show default 
+function showLoad(loading) { 
+    var buttons = document.getElementsByClassName("tc-scroll-button"); 
+    var x = document.getElementsByClassName("tabcluster-slide"); 
+    var load = document.getElementById("tabcluster-loading"); 
+    for (i = 0; i < x.length; i++) { 
+        x[i].style.display = (!loading && i === 0) ? "block" : "none"; 
+    }
+
+    buttons[0].style.display = loading ? "none" : "inherit"; 
+    buttons[1].style.display = loading ? "none" : "inherit"; 
+    load.style.display = loading ? "block" : "none";
+
+
 }
 
 async function getNumWindows() { 
     await chrome.tabs.query({ currentWindow: true }).then(tabs => { 
         tabLen = tabs.length 
         $(document).ready(function() {
-            $("#numWindows").attr({
+            $("#tabcluster-numWindows").attr({
                 "min": 1, 
                 "max": tabLen
             })
@@ -104,20 +110,22 @@ window.addEventListener('DOMContentLoaded', function() {
     // add all the events for UI 
     document.getElementById("left-scroll").addEventListener('click', () => moveDiv(-1)); 
     document.getElementById("right-scroll").addEventListener('click', () => moveDiv(1)); 
-    var target = document.querySelector("#numWindows"); 
+    document.getElementById("tc-exit").addEventListener('click', () => window.close()); 
+
+
+    var numWindows = document.getElementById('tabcluster-numWindows'); 
     let observer = new IntersectionObserver(getNumWindows, options); 
-    observer.observe(target); 
+    observer.observe(numWindows); 
     
 
     // functionality for querying tabs
     var txtCapture = document.getElementById('textCapture'); 
-    var numWindows = document.getElementById('numWindows'); 
     var domainNm = document.getElementById('clusterDomain'); 
     var tabsToSend = []; 
     if (txtCapture !== null && numWindows !== null) {
         txtCapture.addEventListener('click', async () => {
             try { 
-                showLoad();
+                showLoad(true);
                 const tabs = await chrome.tabs.query({ currentWindow: true }); 
                 let promises = await tabs.map(async tab => {
                     const url = tab.url 
@@ -172,6 +180,6 @@ window.addEventListener('DOMContentLoaded', function() {
 
     }
 
-    chrome.tabGroups.onCreated.addListener(showDiv(1)); 
+    chrome.tabGroups.onUpdated.addListener(showLoad(false)); 
 
 }); 
