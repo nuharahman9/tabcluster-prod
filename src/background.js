@@ -1,5 +1,5 @@
 // recieves groups for tabs
-pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
+// pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 
 let tabsToSend = {} 
@@ -118,6 +118,7 @@ async function sendTextv2(tabs) {
     return response; 
       
 }
+
 
 
 

@@ -109,7 +109,7 @@ window.addEventListener('DOMContentLoaded', function() {
     observer.observe(target); 
     
 
-    // functionality for querying tabs 
+    // functionality for querying tabs
     var txtCapture = document.getElementById('textCapture'); 
     var numWindows = document.getElementById('numWindows'); 
     var domainNm = document.getElementById('clusterDomain'); 
@@ -171,5 +171,7 @@ window.addEventListener('DOMContentLoaded', function() {
         })
 
     }
+
+    chrome.tabGroups.onCreated.addListener(showDiv(1)); 
 
 }); 
