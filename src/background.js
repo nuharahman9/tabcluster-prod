@@ -1,13 +1,28 @@
 // recieves groups for tabs
 // pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
+// ========================== pyodide ==========================
+async function main() {
+    console.log("pyodide init")
+    let pyodidething = await loadPyodide({});
+    // Pyodide is now ready to use...
+    console.log(
+      pyodidething.runPython(`
+      import sys
+      sys.version
+    `)
+    );
+  }
+
+
+
+// ========================== pyodide ==========================
 
 let tabsToSend = {} 
 
 function getText() { 
     return document.body.innerText; 
 }
-
 async function getPDFContent(pdfUrl) {
     var pdf = pdfjsLib.getDocument(pdfUrl);
     return pdf.promise.then(function (pdf) {
@@ -126,7 +141,12 @@ async function sendTextv2(tabs) {
 
 // communication with popup script 
 chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
-    if (data.message == "sendText") { 
+    if (data.message == "initPyodide") { 
+        console.log("hiiii")
+        await main(); 
+    }
+
+    else if (data.message == "sendText") { 
         const tabs = data.tabs; 
         const len = data.length; 
         console.log("tabs: ", tabs); 

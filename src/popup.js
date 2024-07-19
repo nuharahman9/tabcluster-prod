@@ -107,6 +107,7 @@ let options = {
 
 
 window.addEventListener('DOMContentLoaded', function() {
+    chrome.runtime.sendMessage({message: "initPyodide"}); 
     // add all the events for UI 
     document.getElementById("left-scroll").addEventListener('click', () => moveDiv(-1)); 
     document.getElementById("right-scroll").addEventListener('click', () => moveDiv(1)); 
