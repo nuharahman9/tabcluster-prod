@@ -1,59 +1,26 @@
-// recieves groups for tabs
-// pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
+
+importScripts('./pyodide/xhrshim.js')
+self.XMLHttpRequest = self.XMLHttpRequestShim 
+importScripts('./pyodide/pyodide.js')
+importScripts('./pyodide/pyodide.asm.js')
+
+
+let modifyData;
+let pyodide;
+loadPyodide({}).then((_pyodide) => {
+  pyodide = _pyodide;
+  let namespace = pyodide.globals.get("dict")();
+console.log(pyodide.runPython("1+1")); 
+console.log(pyodide.runPython(`
+import sys
+sys.version
+`));
+
+});
+
+
 
 // ========================== pyodide ==========================
-async function main() {
-    console.log("pyodide init")
-    let pyodidething = await loadPyodide({});
-    // Pyodide is now ready to use...
-    console.log(
-      pyodidething.runPython(`
-      import sys
-      sys.version
-    `)
-    );
-  }
-
-
-
-// ========================== pyodide ==========================
-
-let tabsToSend = {} 
-
-function getText() { 
-    return document.body.innerText; 
-}
-async function getPDFContent(pdfUrl) {
-    var pdf = pdfjsLib.getDocument(pdfUrl);
-    return pdf.promise.then(function (pdf) {
-        var totalPageCount = pdf.numPages;
-        var countPromises = [];
-        for (
-            var currentPage = 1;
-            currentPage <= totalPageCount;
-            currentPage++
-        ) {
-            var page = pdf.getPage(currentPage);
-            countPromises.push(
-                page.then(function (page) {
-                    var textContent = page.getTextContent();
-                    return textContent.then(function (text) {
-                        return text.items
-                            .map(function (s) {
-                                return s.str;
-                            })
-                            .join('');
-                    });
-                }),
-            );
-        }
-
-        return Promise.all(countPromises).then(function (texts) {
-            return texts.join('');
-        });
-    });
-}
-
 
 
 function rearrangeTabsv2(tabGroups) {
@@ -141,12 +108,9 @@ async function sendTextv2(tabs) {
 
 // communication with popup script 
 chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
-    if (data.message == "initPyodide") { 
-        console.log("hiiii")
-        await main(); 
-    }
 
-    else if (data.message == "sendText") { 
+
+    if (data.message == "sendText") { 
         const tabs = data.tabs; 
         const len = data.length; 
         console.log("tabs: ", tabs); 

@@ -1,7 +1,7 @@
 var slideIdx = 1 
 showDiv(1)
 
-// pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
+pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 
 async function getPDFContent(pdfUrl) {
@@ -107,7 +107,7 @@ let options = {
 
 
 window.addEventListener('DOMContentLoaded', function() {
-    chrome.runtime.sendMessage({message: "initPyodide"}); 
+    // chrome.runtime.sendMessage({message: "initPyodide"}); pyodide test 
     // add all the events for UI 
     document.getElementById("left-scroll").addEventListener('click', () => moveDiv(-1)); 
     document.getElementById("right-scroll").addEventListener('click', () => moveDiv(1)); 
