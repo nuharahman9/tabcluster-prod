@@ -6,16 +6,11 @@ importScripts('./pyodide/pyodide.asm.js')
 
 
 let modifyData;
+let micropip; 
 let pyodide;
 loadPyodide({}).then((_pyodide) => {
-  pyodide = _pyodide;
-  let namespace = pyodide.globals.get("dict")();
-console.log(pyodide.runPython("1+1")); 
-console.log(pyodide.runPython(`
-import sys
-sys.version
-`));
-
+    pyodide = _pyodide;
+    console.log("pyodide loaded\n")
 });
 
 
@@ -103,6 +98,23 @@ async function sendTextv2(tabs) {
 
 
 
+async function sendTextv3(tabs) { 
+    await pyodide.loadPackage("micropip"); 
+    
+//     const micropip = pyodide.pyimport("micropip"); 
+//     let test = pyodide.runPython(`
+//     def test(x):
+//         print("python: ")
+//         print(x)
+//         return; 
+//     test`);
+
+
+//     let res = test(JSON.stringify(tabs))
+//     res.destroy(); 
+}
+
+
 
 
 
@@ -115,7 +127,7 @@ chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
         const len = data.length; 
         console.log("tabs: ", tabs); 
         const numWindows = data.numWindows
-        const response = await sendTextv2(tabs); 
+        const response = await sendTextv3(tabs); 
         if (response.status === 200) { 
             cluster(numWindows); 
         } else { 

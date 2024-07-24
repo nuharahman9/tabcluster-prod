@@ -149,8 +149,6 @@ window.addEventListener('DOMContentLoaded', function() {
                         if (tabsToSend[i]['tab'].url.includes('pdf')) { 
                             await getPDFContent(tabsToSend[i]['tab'].url).then(c => tabsToSend[i]['text'] = c)
                         }
-
-                        console.log(tabsToSend[i]['text']); 
                     }
                 }; 
                 
