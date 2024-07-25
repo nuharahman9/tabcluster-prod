@@ -1,19 +1,19 @@
 import pandas as pd 
 import string 
+import gc 
 import numpy as np 
-import os 
-import matplotlib.pyplot as plt
 from nltk import word_tokenize
 from nltk.corpus import stopwords   
 from nltk.stem import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF 
-from collections import Counter 
 from gensim.models.coherencemodel import CoherenceModel
 from gensim.corpora.dictionary import Dictionary 
-import math
 import re 
+from appv2 import website_data
 
+gc.enable() 
+gc.set_debug(gc.DEBUG_LEAK)
 
 class websiteTopicModel: 
     n_components: int 
@@ -44,10 +44,11 @@ class websiteTopicModel:
     
 
     # modification : expected to get array of texts 
-    def read_txt(self, texts): 
-        # read file contents by line 
-        print("enter read_txt\n")
-        for text in texts: 
+    def read_txt(self): 
+        global website_data
+        print("[websiteTopicModel]: enter read_txt\n")
+        for index, row in website_data.iterrows(): 
+            text = row['text']
             text = re.sub(r'\n', '', text)
             text = re.sub(r'\d', '', text)
             text = text.translate(str.maketrans('', '', string.punctuation))
@@ -55,8 +56,9 @@ class websiteTopicModel:
             text = text.lower()
             tokenized_words = word_tokenize(text)
             tokenized_words = [self.ps.stem(word) for word in tokenized_words]
-            self.websites_preprocessed_data.append(' '.join(tokenized_words)) 
-        print("finished processing text\n")
+            self.websites_preprocessed_data.append(' '.join(tokenized_words))
+
+        print("[websiteTopicModel]: finished processing text\n")
         
     
     def create_tfidf_matrix(self): 
@@ -151,8 +153,8 @@ class websiteTopicModel:
         print(self.topic_doc_map)
         return self.topic_doc_map
     
-    def driver(self, texts):
-        self.read_txt(texts)
+    def driver(self):
+        self.read_txt()
         self.create_tfidf_matrix()
         self.generate_nmf_model()
 

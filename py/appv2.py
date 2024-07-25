@@ -1,26 +1,29 @@
 from websiteTopicModelv2 import websiteTopicModel
 import json 
+import gc
 import pandas as pd 
+
+gc.enable()
+gc.set_debug(gc.DEBUG_LEAK)
+
+
 
 nmf_model = None 
 url_id_map = {} # will map urls to ids, for faster lookup even thoguh its a little redundant 
-website_data = pd.DataFrame(columns=['url', 'text']);  # url and corresponding text 
+website_data = pd.DataFrame(columns=['url', 'id', 'text']);  # url and corresponding text 
 
-# # modify to either call storage apis 
-# def cleanup(): 
-#     print("in cleanup\n")
-#     for filepath, id in url_id_map.items(): 
-#         if os.path.exists(filepath): 
-#             try: 
-#                 os.remove(filepath)
-#                 print(f"{filepath} deleted\n")
-#             except Exception as e: 
-#                 print("An error occured deleting files: {e}")
+# modify to either call storage apis 
+def cleanup(): 
+    global website_data
+    global url_id_map
+    website_data.drop(website_data.index)
+    url_id_map = {} 
+
 
 
 
 # pages[i] = dict of url, id, text
-def upload_txt(tabs): 
+def upload_text(tabs): 
     pages = json.loads(tabs)
     print(len(pages))
     global url_id_map
@@ -47,7 +50,6 @@ def cluster(numWindows):
     global url_id_map
     global nmf_model 
 
-    
     topics_website_ids_map = {}
     print("\n==========================================APP.PY URL TO ID====================================\n")
     print(url_id_map)
