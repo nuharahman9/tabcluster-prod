@@ -1,64 +1,44 @@
 from websiteTopicModelv2 import websiteTopicModel
+import json 
 import pandas as pd 
 
 nmf_model = None 
-url_id_map = {} 
+url_id_map = {} # will map urls to ids, for faster lookup even thoguh its a little redundant 
+website_data = pd.DataFrame(columns=['url', 'text']);  # url and corresponding text 
 
-
-# modify to either call storage apis 
-def cleanup(): 
-    print("in cleanup\n")
-    for filepath, id in url_id_map.items(): 
-        if os.path.exists(filepath): 
-            try: 
-                os.remove(filepath)
-                print(f"{filepath} deleted\n")
-            except Exception as e: 
-                print("An error occured deleting files: {e}")
-
-
+# # modify to either call storage apis 
+# def cleanup(): 
+#     print("in cleanup\n")
+#     for filepath, id in url_id_map.items(): 
+#         if os.path.exists(filepath): 
+#             try: 
+#                 os.remove(filepath)
+#                 print(f"{filepath} deleted\n")
+#             except Exception as e: 
+#                 print("An error occured deleting files: {e}")
 
 
 
+# pages[i] = dict of url, id, text
 def upload_txt(tabs): 
-    print(tabs)
-    
-
-
-    # print(len(tabs))
-    # global url_id_map
-    # try: 
-    #     for tab in tabs:
-    #         url = tab['tab']['url'] 
-    #         text = tab['text']
-    #         title = tab['tab']['title']
-    #         id = tab['tab']['id']
-    #         if url and text:
-    #             filename = url.replace('http://', '').replace('https://', '').replace('/', '_').replace('www.', '')
-    #             # truncate file name 
-    #             filename = filename[:45] if len(filename) > 45 else filename 
-    #             filename += '.txt'
-    #             filepath = os.path.join(UPLOAD_FOLDER, filename) # create file under tab id 
-    #             print(id, filepath)
-    #             url_id_map[filepath] = id 
-    #             with open(filepath, 'a', encoding='utf-8') as file:
-    #                 file.write(url) 
-    #                 file.write('\n')
-    #                 file.write(title)
-    #                 file.write('\n')
-    #                 file.write(text)
-    #         else: 
-    #             print("something happened with: ", url)
-    #     return jsonify({ 'status': 200, 'message': "data upload complete"})
-    # except: 
-    #     return jsonify({ 'status': 400, 'message': 'F' })
+    pages = json.loads(tabs)
+    print(len(pages))
+    global url_id_map
+    global website_data
+    try: 
+        for page in pages:
+            url = page['url'] 
+            id = page['id']
+            if page['url'] and page['text']:
+                url_id_map[url] = id 
+                website_data.loc[len(website_data)] = page
+            else: 
+                print("something happened with: ", url)
+        return json.dumps({ 'status': 200, 'message': "data upload complete"})
+    except: 
+        return json.dumps({ 'status': 400, 'message': 'F' })
 
    
-
-
-
-
-
 
 
 # expected 
