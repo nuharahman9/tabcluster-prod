@@ -100,18 +100,20 @@ async function sendTextv2(tabs) {
 
 async function sendTextv3(tabs) { 
     await pyodide.loadPackage("micropip"); 
-    
-//     const micropip = pyodide.pyimport("micropip"); 
-//     let test = pyodide.runPython(`
-//     def test(x):
-//         print("python: ")
-//         print(x)
-//         return; 
-//     test`);
+    const micropip = pyodide.pyimport("micropip"); 
+    await micropip.install("json"); 
+    let test = pyodide.runPython(`
+    import json 
+    def test(x):
+        print("python: ")
+        y = json.loads(x)
+        print(y)
+        return y; 
+    test`);
 
 
-//     let res = test(JSON.stringify(tabs))
-//     res.destroy(); 
+    let res = test(JSON.stringify(tabs))
+    res.destroy(); 
 }
 
 
