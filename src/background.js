@@ -101,13 +101,15 @@ async function sendTextv2(tabs) {
 async function sendTextv3(tabs) { 
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
-    await micropip.install("json"); 
     let test = pyodide.runPython(`
+    import micropip 
     import json 
     def test(x):
         print("python: ")
         y = json.loads(x)
-        print(y)
+        print(type(y))
+        print("tab: ", y[0]['tab'])
+        print("tab url:", y[0]['tab']['url'])
         return y; 
     test`);
 
