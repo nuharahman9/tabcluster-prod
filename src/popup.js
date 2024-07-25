@@ -135,7 +135,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         func: getText, 
                         args: [ url ]
                     }).then(text => {
-                        tabsToSend.push({tab: tab, text: text[0].result })
+                        tabsToSend.push({url: tab.url, id: tab.id, text: `\n${tab.url}\n${tab.title}\n${text[0].result}` })
                         
                     }).catch(e => { 
                         console.error("error: ", e)
@@ -146,8 +146,8 @@ window.addEventListener('DOMContentLoaded', function() {
                 console.log("[popup.js] Tabs to send: ", tabsToSend)
                 let pdf = async (tabsToSend) => { 
                     for (let i = 0; i < tabsToSend.length; i++) { 
-                        if (tabsToSend[i]['tab'].url.includes('pdf')) { 
-                            await getPDFContent(tabsToSend[i]['tab'].url).then(c => tabsToSend[i]['text'] = c)
+                        if (tabsToSend[i]['url'].includes('pdf')) { 
+                            await getPDFContent(tabsToSend[i]['url']).then(c => tabsToSend[i]['text'] = `\n${tabsToSend[i]['url']}\n${tabsToSend[i]['title']}\n${c}`)
                         }
                     }
                 }; 
