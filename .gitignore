@@ -1,6 +1,7 @@
 node_modules
 dist
-py/myenv/
+py/env/
+py/__pycache__
 static-libraries/ 
 src/lib/
 .DS_Store

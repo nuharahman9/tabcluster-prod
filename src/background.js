@@ -105,15 +105,13 @@ async function sendTextv3(tabs) {
     import micropip 
     import json 
     def test(x):
+        print(x)
         print("python: ")
-        y = json.loads(x)
-        print(type(y))
-        print("tab: ", y[0]['tab'])
-        print("tab url:", y[0]['tab']['url'])
-        return y; 
+        data = json.loads(x)
+        print(data)
+        return data; 
     test`);
-
-
+    console.log(tabs)
     let res = test(JSON.stringify(tabs))
     res.destroy(); 
 }
