@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='tab clustering chrome extension',
+    name='tab-cluster',
     version='0.1.0',
     description='',
     author='Nuha Rahman',

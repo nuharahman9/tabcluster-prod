@@ -1,3 +1,4 @@
+const { default: PyodidePlugin } = require("@pyodide/webpack-plugin");
 
 importScripts('./pyodide/xhrshim.js')
 self.XMLHttpRequest = self.XMLHttpRequestShim 
@@ -12,7 +13,6 @@ loadPyodide({}).then((_pyodide) => {
     pyodide = _pyodide;
     console.log("pyodide loaded\n")
 });
-
 
 
 // ========================== pyodide ==========================
@@ -101,14 +101,12 @@ async function sendTextv2(tabs) {
 async function sendTextv3(tabs) { 
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
+    await micropip.install("tab_cluster")
     let test = pyodide.runPython(`
     import micropip 
     import json 
+    import tab-cluster
     def test(x):
-        print(x)
-        print("python: ")
-        data = json.loads(x)
-        print(data)
         return data; 
     test`);
     console.log(tabs)

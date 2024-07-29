@@ -11,8 +11,8 @@ from gensim.models.coherencemodel import CoherenceModel
 from gensim.corpora.dictionary import Dictionary 
 import re 
 
-# gc.enable() 
-# gc.set_debug(gc.DEBUG_LEAK)
+gc.enable() 
+gc.set_debug(gc.DEBUG_LEAK)
 
 class websiteTopicModel: 
     n_components: int 

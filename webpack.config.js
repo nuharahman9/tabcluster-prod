@@ -3,7 +3,6 @@ const webpack = require('webpack')
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin'); 
 const CopyWebpackPlugin = require('copy-webpack-plugin'); 
 const nodeExternals = require('webpack-node-externals'); 
-// const { PyodidePlugin } = require("@pyodide/webpack-plugin");
 
 
 module.exports = { 
@@ -21,8 +20,8 @@ module.exports = {
         rules: [
             {
               test: /\.js$/,
-              loader: '@open-wc/webpack-import-meta-loader',
-              exclude: /(node_modules|py|corpus|static-libraries)/,
+              loader: 'node-loader',
+              exclude: /(py|corpus|static-libraries|wheel-build)/,
             },
           ],
     }, 
@@ -38,6 +37,8 @@ module.exports = {
             $: path.resolve(__dirname, './src/lib/jquery.min.js'),
             jQuery: path.resolve(__dirname, './src/lib/jquery.min.js'),
             pdfjsLib: 'pdfjs-dist/build/pdf', 
+            process: path.resolve(__dirname, './src/lib/process/browser.js')
+
         }), 
     ], 
     resolve: { 
@@ -48,7 +49,6 @@ module.exports = {
             "events": require.resolve("events/"),
             "fs": false,
             "path": require.resolve("path-browserify"),
-            "process": require.resolve("process/browser"),
             "stream": require.resolve("stream-browserify"),
             "util": require.resolve("util/")
         }

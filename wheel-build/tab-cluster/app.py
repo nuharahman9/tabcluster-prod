@@ -1,10 +1,10 @@
-from websiteTopicModelv2 import websiteTopicModel
+from websiteTopicModel import websiteTopicModel
 import json 
 import gc
 import pandas as pd 
 
-# gc.enable()
-# gc.set_debug(gc.DEBUG_LEAK)
+gc.enable()
+gc.set_debug(gc.DEBUG_LEAK)
 
 
 nmf_model = None 
@@ -88,23 +88,3 @@ def cluster(numWindows):
         return "something went wrong."
 
 
-# tests 
-# json_obj = [
-#         {
-#             "url": "https://packaging.python.org/en/latest/tutorials/packaging-projects/", 
-#             "id": 573586988, 
-#             "text": "some test text akjbdn help me help me help me help me help me gelp me"
-#         }, 
-
-#         {
-#             "url": "https://packaging.python.org/en/latest/tutorials/packaging-pro/", 
-#             "id": 573586388, 
-#             "text": "some test text yehehehehehehdhsjbfdshbksbfsdmnfdslnfsdknfdsl"
-#         }, 
-#     ] 
-
-
-# if __name__ == '__main__': 
-#     test_tabs = json.dumps(json_obj)
-#     upload_text(test_tabs)
-#     cluster(-1)

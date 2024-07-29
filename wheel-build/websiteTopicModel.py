@@ -1,26 +1,27 @@
 import pandas as pd 
 import string 
-import gc 
 import numpy as np 
+import os 
+import matplotlib.pyplot as plt
 from nltk import word_tokenize
 from nltk.corpus import stopwords   
 from nltk.stem import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF 
+from collections import Counter 
 from gensim.models.coherencemodel import CoherenceModel
 from gensim.corpora.dictionary import Dictionary 
+import math
 import re 
 
-gc.enable() 
-gc.set_debug(gc.DEBUG_LEAK)
 
 class websiteTopicModel: 
     n_components: int 
     vectorizer: TfidfVectorizer
+    file_paths: list[str]
     topics: list[list[str]]
     topic_doc_map: list[str]    
     nmf_model: NMF 
-    num_tabs: int  
     ps: PorterStemmer 
     H: np.ndarray 
     W: np.ndarray 
@@ -36,20 +37,23 @@ class websiteTopicModel:
         self.W = None 
         self.ps = PorterStemmer()
         self.H = None 
-        self.num_tabs = 0
         self.websites_preprocessed_data = [] 
         self.topics = [] 
         self.topic_doc_map = []
 
+    def load_corpus_paths(self, path): 
+        for filename in os.listdir(path): 
+            file_path = path + filename 
+            self.file_paths.append(file_path)
     
 
-    # modification : expected to get array of texts 
-    def read_txt(self, website_data): 
-        print("[websiteTopicModel]: enter read_txt\n")
-        print("shape: ", website_data.shape[0])
-        self.num_tabs = website_data.shape[0]
-        for index, row in website_data.iterrows(): 
-            text = row['text']
+    def read_txt(self): 
+        
+        # read file contents by line 
+        print("enter read_txt\n")
+        for file_path in self.file_paths: 
+            file = open(file_path, "r", encoding="utf-8")
+            text = file.read() 
             text = re.sub(r'\n', '', text)
             text = re.sub(r'\d', '', text)
             text = text.translate(str.maketrans('', '', string.punctuation))
@@ -57,9 +61,8 @@ class websiteTopicModel:
             text = text.lower()
             tokenized_words = word_tokenize(text)
             tokenized_words = [self.ps.stem(word) for word in tokenized_words]
-            self.websites_preprocessed_data.append(' '.join(tokenized_words))
-
-        print("[websiteTopicModel]: finished processing text\n")
+            self.websites_preprocessed_data.append(' '.join(tokenized_words)) 
+        print("finished processing text\n")
         
     
     def create_tfidf_matrix(self): 
@@ -88,7 +91,7 @@ class websiteTopicModel:
             word_lists.append(words)
         return word_lists 
     
-    def recluster(self, new_components, data, urls): 
+    def recluster(self, new_components): 
         ## reinitialize 
         self.n_components = new_components
         self.file_paths = [] 
@@ -96,7 +99,7 @@ class websiteTopicModel:
         self.topics = [] 
         self.topic_doc_map = []
 
-        return self.driver(data, urls) 
+        return self.driver() 
 
 
 
@@ -104,12 +107,13 @@ class websiteTopicModel:
         word_lists = self.convert_strings_to_words()
         dict = Dictionary(word_lists)
         corpus = [dict.doc2bow(text) for text in word_lists]
+        max = len(self.file_paths)
         best_num_topics = 0 
         best_coherence = float('-inf')
       #  prev_coherence = 0 
         min = 2
-        print("approximate_best_n: ", min, self.num_tabs)
-        for i in range(1, self.num_tabs): # dont wanna have a window with just one page - open for suggestion on this one ?
+        print("approximate_best_n: ", min, max)
+        for i in range(1, max): # dont wanna have a window with just one page - open for suggestion on this one ?
             curr_topics = [] 
             self.nmf_model = NMF(n_components=i, random_state=60, solver='mu', init='nndsvda')
             self.W = self.nmf_model.fit_transform(self.tfidf_matrix)
@@ -143,22 +147,32 @@ class websiteTopicModel:
             word_topics.append([word for phrase in topic for word in phrase.split()])  
         return word_topics 
 
-    def map_topics_to_websites(self, urls): 
+    def map_topics_to_websites(self): 
         self.topic_doc_map = {i: [] for i in range(self.nmf_model.n_components)}
 
-        for doc_index, topic_scores in enumerate(self.W): 
+        for doc_index, topic_scores in enumerate(self.W):
             max_topic_score = np.argmax(topic_scores)
-            self.topic_doc_map[max_topic_score].append(urls[doc_index])
+            self.topic_doc_map[max_topic_score].append(self.file_paths[doc_index])
         
         print(self.topic_doc_map)
         return self.topic_doc_map
     
-    def driver(self, data, urls):
-        self.read_txt(website_data=data)
+    def driver(self):
+        self.load_corpus_paths('../corpus/')
+        self.read_txt()
         self.create_tfidf_matrix()
         self.generate_nmf_model()
 
-        return self.map_topics_to_websites(urls)
+        return self.map_topics_to_websites()
 
     
 
+
+
+def main(): 
+    nmf_model = websiteTopicModel(n_components=-1)
+    return nmf_model.driver() 
+
+
+if __name__ == '__main__':
+    topic_doc_map = main()
