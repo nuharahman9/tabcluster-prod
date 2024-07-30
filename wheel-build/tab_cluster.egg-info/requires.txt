@@ -3,7 +3,3 @@ nltk
 numpy
 scikit-learn
 gensim
-json
-gc
-string
-re

@@ -1,10 +1,6 @@
-const { default: PyodidePlugin } = require("@pyodide/webpack-plugin");
-
 importScripts('./pyodide/xhrshim.js')
 self.XMLHttpRequest = self.XMLHttpRequestShim 
 importScripts('./pyodide/pyodide.js')
-importScripts('./pyodide/pyodide.asm.js')
-
 
 let modifyData;
 let micropip; 
@@ -101,17 +97,21 @@ async function sendTextv2(tabs) {
 async function sendTextv3(tabs) { 
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
-    await micropip.install("tab_cluster")
-    let test = pyodide.runPython(`
-    import micropip 
-    import json 
-    import tab-cluster
-    def test(x):
-        return data; 
-    test`);
-    console.log(tabs)
-    let res = test(JSON.stringify(tabs))
-    res.destroy(); 
+    let response = chrome.runtime.getURL('./pyodide/tab_cluster-0.1.0-py3-none-any.whl'); 
+    let buffer = await response.arrayBuffer(); 
+    await pyodide.unpackArchive(buffer, "wheel")
+    const tab_cluster = pyodide.pyimport("tab-cluster").then(res => console.log(res)) 
+    let res = tab_cluster.upload_text(JSON.stringify(tabs))
+    console.log(res)
+    res.destroy()
+    // let test = pyodide.runPython(`
+    // import micropip 
+    // import json 
+    // import tab-cluster
+    // def test(x):
+    //     return data; 
+    // test`);
+
 }
 
 

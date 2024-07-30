@@ -1,7 +1,7 @@
 var slideIdx = 1 
 showDiv(1)
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
+// pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 
 async function getPDFContent(pdfUrl) {

@@ -12,7 +12,3 @@ Requires-Dist: nltk
 Requires-Dist: numpy
 Requires-Dist: scikit-learn
 Requires-Dist: gensim
-Requires-Dist: json
-Requires-Dist: gc
-Requires-Dist: string
-Requires-Dist: re

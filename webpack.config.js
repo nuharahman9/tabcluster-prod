@@ -19,27 +19,36 @@ module.exports = {
     module: { 
         rules: [
             {
-              test: /\.js$/,
-              loader: 'node-loader',
-              exclude: /(py|corpus|static-libraries|wheel-build)/,
+              test: /\.node$/,
+              loader: 'node-loader'
             },
+            {
+                test: /\.js$/,
+                exclude: /(py|corpus|static-libraries|wheel-build|node_modules)/,
+                use: { 
+                    loader: 'babel-loader', 
+                    options: { 
+                        presets: ['@babel/preset-env']
+                    }
+                }
+              },
           ],
     }, 
     mode: 'production', 
     watch: true, 
     plugins: [ 
         new CopyWebpackPlugin({
-            patterns: [{ from: 'static' }, {from: './src/lib/pyodide', to: 'pyodide' }]
+            patterns: [{ from: 'static' }, {from: './src/lib/pyodide', to: 'pyodide' }, {from: './tab_cluster-0.1.0.tar.gz', to: 'pyodide'}]
         }), 
         new NodePolyfillPlugin(), 
         // new PyodidePlugin(), 
         new webpack.ProvidePlugin({
             $: path.resolve(__dirname, './src/lib/jquery.min.js'),
             jQuery: path.resolve(__dirname, './src/lib/jquery.min.js'),
-            pdfjsLib: 'pdfjs-dist/build/pdf', 
-            process: path.resolve(__dirname, './src/lib/process/browser.js')
+            // pdfjsLib: 'pdfjs-dist/build/pdf', 
+            process: 'process/browser'
 
-        }), 
+        })
     ], 
     resolve: { 
         extensions: ['.js', '.mjs'], 
@@ -47,6 +56,7 @@ module.exports = {
             "child_process": false, 
             "worker_threads": false, 
             "events": require.resolve("events/"),
+            "process": require.resolve("process/browser"), 
             "fs": false,
             "path": require.resolve("path-browserify"),
             "stream": require.resolve("stream-browserify"),

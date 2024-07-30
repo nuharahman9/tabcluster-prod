@@ -12,11 +12,7 @@ setup(
         "nltk" , 
         "numpy" ,
         "scikit-learn",
-        "gensim", 
-        "json", # python native libraries 
-        "gc", 
-        "string", 
-        "re", 
+        "gensim"
         
     ],
     classifiers=[
