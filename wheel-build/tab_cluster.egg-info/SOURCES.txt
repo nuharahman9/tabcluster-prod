@@ -1,6 +1,0 @@
-setup.py
-tab_cluster.egg-info/PKG-INFO
-tab_cluster.egg-info/SOURCES.txt
-tab_cluster.egg-info/dependency_links.txt
-tab_cluster.egg-info/requires.txt
-tab_cluster.egg-info/top_level.txt

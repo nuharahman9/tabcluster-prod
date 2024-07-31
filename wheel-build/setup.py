@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='tab-cluster',
+    name='tabcluster',
     version='0.1.0',
     description='',
     author='Nuha Rahman',
     author_email='nrahm777@gmail.com',
-    packages=find_packages(),  # Automatically find packages in the directory
+    package_dir= {"": "tabcluster"}, 
     install_requires=[
         "pandas",  
         "nltk" , 

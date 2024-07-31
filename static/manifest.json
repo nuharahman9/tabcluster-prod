@@ -11,6 +11,12 @@
       "*://*/*", 
       "<all_urls>"
     ], 
+    "web_accessible_resources": [
+      {
+        "resources": ["pyodide/tab_cluster-0.1.0-py3-none-any.whl"], 
+        "matches": ["<all_urls>"]
+      }
+    ], 
     "action": {
       "default_popup": "popup.html",
       "default_icon": "./img/icon.png"

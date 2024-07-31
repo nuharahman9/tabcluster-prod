@@ -2,6 +2,7 @@ importScripts('./pyodide/xhrshim.js')
 self.XMLHttpRequest = self.XMLHttpRequestShim 
 importScripts('./pyodide/pyodide.js')
 
+let tabcluster_pkg = chrome.runtime.getURL('./pyodide/tabcluster-0.1.0-py3-none-any.whl'); 
 let modifyData;
 let micropip; 
 let pyodide;
@@ -97,13 +98,15 @@ async function sendTextv2(tabs) {
 async function sendTextv3(tabs) { 
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
-    let response = chrome.runtime.getURL('./pyodide/tab_cluster-0.1.0-py3-none-any.whl'); 
-    let buffer = await response.arrayBuffer(); 
-    await pyodide.unpackArchive(buffer, "wheel")
-    const tab_cluster = pyodide.pyimport("tab-cluster").then(res => console.log(res)) 
-    let res = tab_cluster.upload_text(JSON.stringify(tabs))
-    console.log(res)
-    res.destroy()
+    await micropip.install(tabcluster_pkg)
+    websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
+    app = pyodide.pyimport("app")
+    let re = app.upload_text(JSON.stringify(tabs))
+    res = app.cluster()
+    console.log(re)
+    re.destroy(); 
+    res.destroy(); 
+    // re.destroy()
     // let test = pyodide.runPython(`
     // import micropip 
     // import json 
