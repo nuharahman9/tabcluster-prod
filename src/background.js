@@ -102,7 +102,8 @@ async function sendTextv3(tabs) {
     websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
     app = pyodide.pyimport("app")
     let re = app.upload_text(JSON.stringify(tabs))
-    res = app.cluster()
+    const data = JSON.stringify({ numWindows: -1 }); 
+    res = app.cluster(data)
     console.log(re)
     re.destroy(); 
     res.destroy(); 
@@ -123,7 +124,6 @@ async function sendTextv3(tabs) {
 
 // communication with popup script 
 chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
-
 
     if (data.message == "sendText") { 
         const tabs = data.tabs; 

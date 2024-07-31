@@ -53,9 +53,11 @@ def upload_text(tabs):
 
 # expected 
 # num windows = int 
-def cluster(numWindows): 
+def cluster(data): 
     global url_id_map
     global nmf_model 
+    unpacked = json.loads(data)
+    numWindows = unpacked['numWindows']
     print("website data read text: ", website_data.shape[0])
     print("in cluster")
     topics_website_ids_map = {}

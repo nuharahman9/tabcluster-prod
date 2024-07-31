@@ -1,5 +1,0 @@
-pandas
-nltk
-numpy
-scikit-learn
-gensim
