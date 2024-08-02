@@ -12,7 +12,8 @@ setup(
         "nltk" , 
         "numpy" ,
         "scikit-learn",
-        "gensim"
+        "gensim", 
+        "js"
         
     ],
     classifiers=[

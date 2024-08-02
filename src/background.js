@@ -3,6 +3,10 @@ self.XMLHttpRequest = self.XMLHttpRequestShim
 importScripts('./pyodide/pyodide.js')
 
 let tabcluster_pkg = chrome.runtime.getURL('./pyodide/tabcluster-0.1.0-py3-none-any.whl'); 
+const js_wheel = chrome.runtime.getURL('./pyodide/js-1.0-py3-none-any.whl'); 
+const pathlib = chrome.runtime.getURL('./pyodide/pathlib-1.0.1-py3-none-any.whl')
+const punkt_zip_wheel = chrome.runtime.getURL('./pyodide/punkt.zip'); 
+console.log("punkt zip: ", punkt_zip_wheel)
 let modifyData;
 let micropip; 
 let pyodide;
@@ -99,13 +103,20 @@ async function sendTextv3(tabs) {
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
     await micropip.install(tabcluster_pkg)
+
+    await micropip.install(js_wheel)
+    await micropip.install(pathlib)
     websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
     app = pyodide.pyimport("app")
+
+    // punkt 
     let re = app.upload_text(JSON.stringify(tabs))
-    const data = JSON.stringify({ numWindows: -1 }); 
+
+    const data = JSON.stringify({ numWindows: -1, punktUrl: punkt_zip_wheel }); 
     res = app.cluster(data)
     console.log(re)
     re.destroy(); 
+    sdd.destroy(); 
     res.destroy(); 
     // re.destroy()
     // let test = pyodide.runPython(`

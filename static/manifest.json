@@ -13,7 +13,7 @@
     ], 
     "web_accessible_resources": [
       {
-        "resources": ["pyodide/tab_cluster-0.1.0-py3-none-any.whl"], 
+        "resources": ["pyodide/tab_cluster-0.1.0-py3-none-any.whl", "pyodide/punkt.zip"], 
         "matches": ["<all_urls>"]
       }
     ], 

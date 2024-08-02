@@ -12,3 +12,4 @@ Requires-Dist: nltk
 Requires-Dist: numpy
 Requires-Dist: scikit-learn
 Requires-Dist: gensim
+Requires-Dist: js

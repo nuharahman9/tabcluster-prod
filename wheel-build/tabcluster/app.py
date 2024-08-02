@@ -3,6 +3,7 @@ import json
 import gc
 import pandas as pd 
 
+
 gc.enable()
 gc.set_debug(gc.DEBUG_LEAK)
 
@@ -50,7 +51,7 @@ def upload_text(tabs):
 
    
 
-
+# HEY DONT FORGET TO UPDATE RECLUSTER TOO! 
 # expected 
 # num windows = int 
 def cluster(data): 
@@ -58,6 +59,7 @@ def cluster(data):
     global nmf_model 
     unpacked = json.loads(data)
     numWindows = unpacked['numWindows']
+    punkt = unpacked['punktUrl']
     print("website data read text: ", website_data.shape[0])
     print("in cluster")
     topics_website_ids_map = {}
@@ -67,7 +69,7 @@ def cluster(data):
     print("in cluster!!!\n")
     if nmf_model is None: 
         nmf_model = websiteTopicModel(n_components=numWindows) 
-        topic_doc_map = nmf_model.driver(website_data, urls) 
+        topic_doc_map = nmf_model.driver(website_data, urls, punkt_url=punkt) 
     else: 
         topic_doc_map = nmf_model.recluster(new_components=numWindows, data=website_data, urls=urls)
     print("\n==========================================APP.PY RETURNED OUTPUT====================================\n")
