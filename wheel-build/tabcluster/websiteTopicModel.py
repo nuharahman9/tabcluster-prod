@@ -3,9 +3,6 @@ import string
 import gc 
 import numpy as np 
 import nltk 
-from js import fetch 
-from pathlib import Path 
-import os, sys, io, zipfile 
 from nltk import word_tokenize
 from nltk.corpus import stopwords   
 from nltk.stem import PorterStemmer
@@ -161,21 +158,9 @@ class websiteTopicModel:
         print(self.topic_doc_map)
         return self.topic_doc_map
 
-    async def init_punkt(self, url): 
-        response = await fetch(url)
-        js_buffer = await response.arrayBuffer()
-        py_buff = js_buffer.to_py() 
-        stream = py_buff.tobytes()
-        d = Path("/nltk_data/tokenizers")
-        d.mkdir(parents=True, exist_ok=True)
-        Path('/nltk_data/tokenizers/punkt.zip').write_bytes(stream)
-        zipfile.ZipFile('/nltk_data/tokenizers/punkt.zip').extractall(path='/nltk_data/tokenizers/') 
-        print(os.listdir("/nltk_data/tokenizers/punkt"))
-        word_tokenize("some test text")
 
     
-    def driver(self, data, urls, punkt_url):
-        self.init_punkt(punkt_url)
+    async def driver(self, data, urls):
         self.read_txt(website_data=data)
         self.create_tfidf_matrix()
         self.generate_nmf_model()

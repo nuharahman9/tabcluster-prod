@@ -38,7 +38,7 @@ module.exports = {
     watch: true, 
     plugins: [ 
         new CopyWebpackPlugin({
-            patterns: [{ from: 'static' }, {from: './src/lib/pyodide', to: 'pyodide' }, {from: './tab_cluster-0.1.0.tar.gz', to: 'pyodide'}]
+            patterns: [{ from: 'static' }, {from: './src/lib/pyodide', to: 'pyodide' }, {from: './wheel-build/dist/tabcluster-0.1.0-py3-none-any.whl', to: 'pyodide'}]
         }), 
         new NodePolyfillPlugin(), 
         // new PyodidePlugin(), 

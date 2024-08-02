@@ -1,6 +1,11 @@
 from websiteTopicModel import websiteTopicModel
 import json 
 import gc
+from pathlib import Path 
+from js import fetch 
+from pathlib import Path 
+import os, sys, io, zipfile  
+import nltk 
 import pandas as pd 
 
 
@@ -23,7 +28,20 @@ def cleanup():
     urls = [] 
 
 
-
+async def init_punkt(data): 
+    unpacked = json.loads(data)
+    url = unpacked['punkturl']
+    print("in init_punkt")
+    response = await fetch(url)
+    js_buffer = await response.arrayBuffer()
+    py_buff = js_buffer.to_py() 
+    stream = py_buff.tobytes()
+    d = Path("/nltk_data/tokenizers")
+    d.mkdir(parents=True, exist_ok=True)
+    Path('/nltk_data/tokenizers/punkt.zip').write_bytes(stream)
+    zipfile.ZipFile('/nltk_data/tokenizers/punkt.zip').extractall(path='/nltk_data/tokenizers/') 
+    print(os.listdir("/nltk_data/tokenizers/punkt"))
+    nltk.word_tokenize("some test text")
 
 # pages[i] = dict of url, id, text
 def upload_text(tabs): 
@@ -69,7 +87,7 @@ def cluster(data):
     print("in cluster!!!\n")
     if nmf_model is None: 
         nmf_model = websiteTopicModel(n_components=numWindows) 
-        topic_doc_map = nmf_model.driver(website_data, urls, punkt_url=punkt) 
+        topic_doc_map = nmf_model.driver(website_data, urls) 
     else: 
         topic_doc_map = nmf_model.recluster(new_components=numWindows, data=website_data, urls=urls)
     print("\n==========================================APP.PY RETURNED OUTPUT====================================\n")
