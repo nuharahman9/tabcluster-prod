@@ -20,14 +20,11 @@ loadPyodide({}).then((_pyodide) => {
 
 
 function rearrangeTabsv2(tabGroups) {
-    for (const topic in tabGroups) { 
-        let tabIds = tabGroups[topic]
+    for (const [key, value] of tabGroups.entries()) { 
+        let tabIds = value
         console.log(tabIds)
         if (tabIds.length) { 
-            chrome.tabs.group({ tabIds: tabIds }, groupId => { 
-                
-
-            }) 
+            chrome.tabs.group({ tabIds: tabIds }, groupId => {}) 
         }
     }
 
@@ -61,22 +58,14 @@ function groupByDomain(tabs) {
 
 // call cluster method using NMF 
 async function cluster(numWindows) { 
-    console.log('js in cluster')
-    const response = await fetch('http://127.0.0.1:5000/cluster', { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }, 
-        body: JSON.stringify({ 
-            numWindows: numWindows
-        })
-    })
-
-    const json = await response.json()
-    console.log("JSON RESPONSE: ", json)
-    if (json.status === 200) { 
-        rearrangeTabsv2(json.groups)
-    }
+    // change this to just be a python object? 
+    const data = JSON.stringify({ numWindows: numWindows }); 
+    const res = await websiteTopicModel.cluster(data)
+    console.log(res)
+    topic_map = res.toJs() 
+    console.log("to_js(): ", topic_map)
+    console.log(typeof topic_map)
+    rearrangeTabsv2(topic_map)
 
 }
 
@@ -116,8 +105,14 @@ async function sendTextv3(tabs) {
     const data = JSON.stringify({ numWindows: -1 }); 
     const res = await websiteTopicModel.cluster(data)
     console.log(res)
-    topic_map = JSON.parse(res)
-    console.log(re)
+    topic_map = res.toJs() 
+    console.log("to_js(): ", topic_map)
+    console.log(typeof topic_map)
+    for (const [key, value] of topic_map.entries()) { 
+        console.log(key, value)
+    }
+    // topic_map = JSON.parse(res)
+    // console.log(re)
     re.destroy(); 
     res.destroy(); 
     re.destroy()

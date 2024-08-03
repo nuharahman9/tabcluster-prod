@@ -1,6 +1,7 @@
 import pandas as pd 
 import string 
 import gc 
+from pyodide import proxy 
 import json 
 from js import fetch 
 from pathlib import Path 
@@ -264,7 +265,8 @@ async def cluster(data):
         print(topics_website_ids_map) 
         cleanup()
 
-        return json.dumps({'topics': topics_website_ids_map}) 
+        json_st = json.dumps({'topics': topics_website_ids_map}) 
+        return json_st 
     else: 
         return "something went wrong."
 
