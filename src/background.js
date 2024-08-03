@@ -102,30 +102,25 @@ async function sendTextv2(tabs) {
 async function sendTextv3(tabs) { 
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
-    await micropip.install(tabcluster_pkg)
-
     await micropip.install(js_wheel)
     await micropip.install(pathlib)
+
+    await micropip.install(tabcluster_pkg)
     websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
-    app = pyodide.pyimport("app")
 
-    // punkt 
-    let re = app.upload_text(JSON.stringify(tabs))
+    const dater = JSON.stringify({ punkturl: punkt_zip_wheel })
+    await websiteTopicModel.init_punkt(dater)
 
-    const data = JSON.stringify({ numWindows: -1, punktUrl: punkt_zip_wheel }); 
-    res = app.cluster(data)
+    await websiteTopicModel.upload_text(JSON.stringify(tabs))
+
+    const data = JSON.stringify({ numWindows: -1 }); 
+    const res = await websiteTopicModel.cluster(data)
+    console.log(res)
+    topic_map = JSON.parse(res)
     console.log(re)
     re.destroy(); 
-    sdd.destroy(); 
     res.destroy(); 
-    // re.destroy()
-    // let test = pyodide.runPython(`
-    // import micropip 
-    // import json 
-    // import tab-cluster
-    // def test(x):
-    //     return data; 
-    // test`);
+    re.destroy()
 
 }
 
