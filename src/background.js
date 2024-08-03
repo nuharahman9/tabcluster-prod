@@ -16,9 +16,11 @@ loadPyodide({}).then((_pyodide) => {
 async function init() { 
     await pyodide.loadPackage("micropip"); 
     const micropip = pyodide.pyimport("micropip"); 
-    await micropip.install(chrome.runtime.getURL('./pyodide/js-1.0-py3-none-any.whl'));
-    await micropip.install(chrome.runtime.getURL('./pyodide/pathlib-1.0.1-py3-none-any.whl')); 
-    await micropip.install(chrome.runtime.getURL('./pyodide/tabcluster-0.1.0-py3-none-any.whl')); 
+    await micropip.install([chrome.runtime.getURL('./pyodide/js-1.0-py3-none-any.whl'), 
+        chrome.runtime.getURL('./pyodide/pathlib-1.0.1-py3-none-any.whl'), 
+        chrome.runtime.getURL('./pyodide/tabcluster-0.1.0-py3-none-any.whl')
+    ]);
+
 
     websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
 
