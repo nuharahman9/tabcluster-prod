@@ -2,18 +2,32 @@ importScripts('./pyodide/xhrshim.js')
 self.XMLHttpRequest = self.XMLHttpRequestShim 
 importScripts('./pyodide/pyodide.js')
 
-let tabcluster_pkg = chrome.runtime.getURL('./pyodide/tabcluster-0.1.0-py3-none-any.whl'); 
-const js_wheel = chrome.runtime.getURL('./pyodide/js-1.0-py3-none-any.whl'); 
-const pathlib = chrome.runtime.getURL('./pyodide/pathlib-1.0.1-py3-none-any.whl')
-const punkt_zip_wheel = chrome.runtime.getURL('./pyodide/punkt.zip'); 
-console.log("punkt zip: ", punkt_zip_wheel)
-let modifyData;
+
 let micropip; 
 let pyodide;
+let websiteTopicModel; 
+
 loadPyodide({}).then((_pyodide) => {
     pyodide = _pyodide;
     console.log("pyodide loaded\n")
 });
+
+
+async function init() { 
+    await pyodide.loadPackage("micropip"); 
+    const micropip = pyodide.pyimport("micropip"); 
+    await micropip.install(chrome.runtime.getURL('./pyodide/js-1.0-py3-none-any.whl'));
+    await micropip.install(chrome.runtime.getURL('./pyodide/pathlib-1.0.1-py3-none-any.whl')); 
+    await micropip.install(chrome.runtime.getURL('./pyodide/tabcluster-0.1.0-py3-none-any.whl')); 
+
+    websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
+
+    const dater = JSON.stringify({ punkturl: chrome.runtime.getURL('./pyodide/punkt.zip') }); 
+    await websiteTopicModel.init_punkt(dater)
+}
+
+
+
 
 
 // ========================== pyodide ==========================
@@ -70,36 +84,8 @@ async function cluster(numWindows) {
 }
 
 
-async function sendTextv2(tabs) { 
-    const response = fetch('http://127.0.0.1:5000/upload-v2', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ tabs: tabs })
-      })
-      .catch(error => { 
-          console.error("[sendTextv2] something went wrong: ", error)
-      });
-      
-    return response; 
-      
-}
-
-
 
 async function sendTextv3(tabs) { 
-    await pyodide.loadPackage("micropip"); 
-    const micropip = pyodide.pyimport("micropip"); 
-    await micropip.install(js_wheel)
-    await micropip.install(pathlib)
-
-    await micropip.install(tabcluster_pkg)
-    websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
-
-    const dater = JSON.stringify({ punkturl: punkt_zip_wheel })
-    await websiteTopicModel.init_punkt(dater)
-
     await websiteTopicModel.upload_text(JSON.stringify(tabs))
 
     const data = JSON.stringify({ numWindows: -1 }); 
@@ -126,7 +112,11 @@ async function sendTextv3(tabs) {
 // communication with popup script 
 chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
 
-    if (data.message == "sendText") { 
+    if (data.message == "init") { 
+        await init(); 
+    }
+
+    else if (data.message == "sendText") { 
         const tabs = data.tabs; 
         const len = data.length; 
         console.log("tabs: ", tabs); 
@@ -138,7 +128,7 @@ chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
             console.error("[Chrome Runtime Listener] Cluster failed.")
         }
 
-    }
+    } 
 
     else if (data.message === 'clusterUrl') { 
         chrome.tabs.query({ currentWindow: true }, tabs => groupByDomain(tabs)); 
