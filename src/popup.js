@@ -2,7 +2,10 @@ var slideIdx = 1
 showDiv(1)
 
 
-chrome.runtime.sendMessage({ message: "init" })
+chrome.runtime.sendMessage({ message: "init" }); 
+
+
+
 // pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL('pdf.worker.js')
 
 async function getPDFContent(pdfUrl) {
@@ -136,7 +139,7 @@ window.addEventListener('DOMContentLoaded', function() {
                         func: getText, 
                         args: [ url ]
                     }).then(text => {
-                        tabsToSend.push({url: tab.url, id: tab.id, text: `\n${tab.url}\n${tab.title}\n${text[0].result}` })
+                        tabsToSend.push({url: tab.url, id: tab.id, windowId: tab.windowId, text: `\n${tab.url}\n${tab.title}\n${text[0].result}` })
                         
                     }).catch(e => { 
                         console.error("error: ", e)

@@ -6,6 +6,7 @@ importScripts('./pyodide/pyodide.js')
 let micropip; 
 let pyodide;
 let websiteTopicModel; 
+let wId; 
 
 loadPyodide({}).then((_pyodide) => {
     pyodide = _pyodide;
@@ -23,24 +24,21 @@ async function init() {
 
 
     websiteTopicModel = pyodide.pyimport("websiteTopicModel"); 
-
     const dater = JSON.stringify({ punkturl: chrome.runtime.getURL('./pyodide/punkt.zip') }); 
     await websiteTopicModel.init_punkt(dater)
+
 }
 
 
 
 
 
-// ========================== pyodide ==========================
-
-
-function rearrangeTabsv2(tabGroups) {
+async function rearrangeTabsv2(tabGroups) {
+    console.log("rearrangetabsV2: ", tabGroups)
     for (const [key, value] of tabGroups.entries()) { 
-        let tabIds = value
-        console.log(tabIds)
-        if (tabIds.length) { 
-            chrome.tabs.group({ tabIds: tabIds }, groupId => {}) 
+        console.log(value)
+        if (value.length) { 
+            chrome.tabs.group({ tabIds: value, createProperties: { windowId: wId } }, (groupId) => console.log("group id: ", groupId)) 
         }
     }
 
@@ -88,9 +86,11 @@ async function cluster(numWindows) {
 
 
 async function sendTextv3(tabs) { 
+    console.log(JSON.stringify(tabs)); 
     await websiteTopicModel.upload_text(JSON.stringify(tabs))
-
     const data = JSON.stringify({ numWindows: -1 }); 
+
+
     const res = await websiteTopicModel.cluster(data)
     console.log(res)
     topic_map = res.toJs() 
@@ -99,11 +99,10 @@ async function sendTextv3(tabs) {
     for (const [key, value] of topic_map.entries()) { 
         console.log(key, value)
     }
-    // topic_map = JSON.parse(res)
-    // console.log(re)
-    re.destroy(); 
+
     res.destroy(); 
-    re.destroy()
+    await rearrangeTabsv2(topic_map)
+    
 
 }
 
@@ -123,12 +122,13 @@ chrome.runtime.onMessage.addListener(async (data, sender, sendResponse) => {
         const len = data.length; 
         console.log("tabs: ", tabs); 
         const numWindows = data.numWindows
+        wId = data.tabs[0].windowId; 
         const response = await sendTextv3(tabs); 
-        if (response.status === 200) { 
-            cluster(numWindows); 
-        } else { 
-            console.error("[Chrome Runtime Listener] Cluster failed.")
-        }
+        // if (response.status === 200) { 
+        //     cluster(numWindows); 
+        // } else { 
+        //     console.error("[Chrome Runtime Listener] Cluster failed.")
+        // }
 
     } 
 
